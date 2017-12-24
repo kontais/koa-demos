@@ -6,21 +6,29 @@ const koaBody = require('koa-body');
 
 const app = new Koa();
 
-const main = async function(ctx) {
+// curl --form upload=@./Koa/package.json http://127.0.0.1:3000
+// ["C:\\Users\\kontais\\AppData\\Local\\Temp\\package.json"]
+// const main = async function(ctx) {
+const main = function(ctx) {
   const tmpdir = os.tmpdir();
-  const filePaths = [];
+  const fileSaves = [];
   const files = ctx.request.body.files || {};
 
   for (let key in files) {
     const file = files[key];
-    const filePath = path.join(tmpdir, file.name);
+
+    console.log('key=' + key);    // upload
+    console.log('name=' + file.name); // package.json
+    console.log('path=' + file.path); // C:\Users\kontais\AppData\Local\Temp\upload_42143ec81bd35faf5e60a2942fe6d352
+
+    const fileSave = path.join(tmpdir, file.name);
     const reader = fs.createReadStream(file.path);
-    const writer = fs.createWriteStream(filePath);
+    const writer = fs.createWriteStream(fileSave);
     reader.pipe(writer);
-    filePaths.push(filePath);
+    fileSaves.push(fileSave);
   }
 
-  ctx.body = filePaths;
+  ctx.body = fileSaves;
 };
 
 app.use(koaBody({ multipart: true }));
